@@ -10,7 +10,7 @@ t1 = time.clock()
 detector = MtcnnDetector(model_folder='model', ctx=mx.gpu(0), num_worker = 4 , accurate_landmark = False)
 
 t2 = time.clock()
-print("Init detector cost %f secondes" % (t2-t1) )
+print("Init detector cost %f seconds" % (t2-t1) )
 
 img = cv2.imread('test2.jpg')
 
@@ -19,7 +19,7 @@ t1 = time.clock()
 # run detector
 results = detector.detect_face(img)
 t2 = time.clock()
-print("detect_face() cost %f secondes" % (t2-t1) )
+print("detect_face() cost %f seconds" % (t2-t1) )
 
 if results is not None:
 

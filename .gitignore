@@ -2,3 +2,6 @@
 caffe_converter
 .idea
 test_save_dir/*
+*.zip
+*.gz
+*.tar

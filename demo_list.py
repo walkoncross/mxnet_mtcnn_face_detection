@@ -9,7 +9,7 @@ import sys
 
 import os.path as osp
 
-def print_usage
+def print_usage():
 	print(
 	'''
 	python demo_test_list.py img_list_file save_dir
@@ -124,7 +124,7 @@ if __name__=='__main__':
 	list_fn = './list_img.txt'
 	save_dir = './test_save_dir'
 
-	if len(sys.argv)>2:
+	if len(sys.argv)>1:
 		list_fn = sys.argv[1]
 	
 	if len(sys.argv)>2:

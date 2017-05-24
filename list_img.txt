@@ -1,0 +1,3 @@
+test.jpg
+test2.jpg
+oscar1.jpg

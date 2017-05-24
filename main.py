@@ -19,7 +19,7 @@ t1 = time.clock()
 detector = MtcnnDetector(model_folder='model', ctx=mx.gpu(0), num_worker = 4 , accurate_landmark = False)
 
 t2 = time.clock()
-print("Init detector cost %f seconds" % (t2-t1) )
+print("\n===> Init detector cost %f seconds" % (t2-t1) )
 
 file_list = []
 
@@ -72,7 +72,7 @@ for fn in file_list:
 			for i in range(5):
 				cv2.circle(draw, (p[i], p[i + 5]), 1, (0, 0, 255), 2)
 				
-		base_name = osp.base_name(fn)
+		base_name = osp.basename(fn)
 		save_name = osp.join(save_dir, base_name)
 		cv2.imwrite(save_name, draw)
 	#    cv2.imshow("detection result", draw)

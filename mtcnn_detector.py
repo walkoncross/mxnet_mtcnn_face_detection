@@ -9,6 +9,9 @@ from itertools import repeat
 from itertools import izip
 from helper import nms, adjust_input, generate_bbox, detect_first_stage_warpper
 
+import time
+
+
 class MtcnnDetector(object):
     """
         Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Neural Networks
@@ -48,7 +51,7 @@ class MtcnnDetector(object):
         # load 4 models from folder
         models = ['det1', 'det2', 'det3','det4']
         models = [ os.path.join(model_folder, f) for f in models]
-        
+
         self.PNets = []
         for i in range(num_worker):
             workner_net = mx.model.FeedForward.load(models[0], 1, ctx=ctx)
@@ -114,7 +117,7 @@ class MtcnnDetector(object):
         bbox[:, 0:4] = bbox[:, 0:4] + aug
         return bbox
 
- 
+
     def pad(self, bboxes, w, h):
         """
             pad the the bboxes, alse restrict the size of it
@@ -184,7 +187,7 @@ class MtcnnDetector(object):
                 yield l[i:i + n]
         num_list = range(number)
         return list(chunks(num_list, self.num_worker))
-        
+
 
     def detect_face(self, img):
         """
@@ -234,20 +237,21 @@ class MtcnnDetector(object):
         #    return_boxes = self.detect_first_stage(img, scale, 0)
         #    if return_boxes is not None:
         #        total_boxes.append(return_boxes)
-        
+        t1 = time.clock()
+
         sliced_index = self.slice_index(len(scales))
         total_boxes = []
         for batch in sliced_index:
             local_boxes = self.Pool.map( detect_first_stage_warpper, \
                     izip(repeat(img), self.PNets[:len(batch)], [scales[i] for i in batch], repeat(self.threshold[0])) )
             total_boxes.extend(local_boxes)
-        
-        # remove the Nones 
+
+        # remove the Nones
         total_boxes = [ i for i in total_boxes if i is not None]
 
         if len(total_boxes) == 0:
             return None
-        
+
         total_boxes = np.vstack(total_boxes)
 
         if total_boxes.size == 0:
@@ -271,10 +275,14 @@ class MtcnnDetector(object):
         total_boxes = total_boxes.T
         total_boxes = self.convert_to_square(total_boxes)
         total_boxes[:, 0:4] = np.round(total_boxes[:, 0:4])
+        t2 = time.clock()
+        print("First stage cost %f seconds, using %d processes, processed %d pyramid scales" % ((t2-t1), self.num_worker, len(scales)) )
 
         #############################################
         # second stage
         #############################################
+        t1 = time.clock()
+
         num_box = total_boxes.shape[0]
 
         # pad the bbox
@@ -306,9 +314,14 @@ class MtcnnDetector(object):
         total_boxes = self.convert_to_square(total_boxes)
         total_boxes[:, 0:4] = np.round(total_boxes[:, 0:4])
 
+        t2 = time.clock()
+        print("Second stage cost %f seconds, using %d processes, processed %d boxes" % ((t2-t1), 1, num_box) )
+
+
         #############################################
         # third stage
         #############################################
+        t1 = time.clock()
         num_box = total_boxes.shape[0]
 
         # pad the bbox
@@ -345,13 +358,17 @@ class MtcnnDetector(object):
         pick = nms(total_boxes, 0.7, 'Min')
         total_boxes = total_boxes[pick]
         points = points[pick]
-        
+
         if not self.accurate_landmark:
             return total_boxes, points
+
+        t2 = time.clock()
+        print("Third stage cost %f seconds, using %d processes, processed %d boxes" % ((t2-t1), 1, num_box) )
 
         #############################################
         # extended stage
         #############################################
+        t1 = time.clock()
         num_box = total_boxes.shape[0]
         patchw = np.maximum(total_boxes[:, 2]-total_boxes[:, 0]+1, total_boxes[:, 3]-total_boxes[:, 1]+1)
         patchw = np.round(patchw*0.25)
@@ -387,6 +404,9 @@ class MtcnnDetector(object):
         points = np.hstack([pointx, pointy])
         points = points.astype(np.int32)
 
+        t2 = time.clock()
+        print("Third stage cost %f seconds, using %d processes, processed %d boxes" % ((t2-t1), 1, num_box) )
+
         return total_boxes, points
 
     def list2colmatrix(self, pts_list):
@@ -398,7 +418,7 @@ class MtcnnDetector(object):
                 input list
         Retures:
         -------
-            colMat: 
+            colMat:
 
         """
         assert len(pts_list) > 0
@@ -414,8 +434,8 @@ class MtcnnDetector(object):
             find transform between shapes
         Parameters:
         ----------
-            from_shape: 
-            to_shape: 
+            from_shape:
+            to_shape:
         Retures:
         -------
             tran_m:
@@ -476,7 +496,7 @@ class MtcnnDetector(object):
         Retures:
         -------
             crop_imgs: list, n
-                cropped and aligned faces 
+                cropped and aligned faces
         """
         crop_imgs = []
         for p in points:

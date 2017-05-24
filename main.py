@@ -26,11 +26,11 @@ if results is not None:
     total_boxes = results[0]
     points = results[1]
 
-    # extract aligned face chips
-    chips = detector.extract_image_chips(img, points, 144, 0.37)
-    for i, chip in enumerate(chips):
-        #cv2.imshow('chip_'+str(i), chip)
-        cv2.imwrite('chip_'+str(i)+'.png', chip)
+    #extract aligned face chips
+#    chips = detector.extract_image_chips(img, points, 144, 0.37)
+#    for i, chip in enumerate(chips):
+#        #cv2.imshow('chip_'+str(i), chip)
+#        cv2.imwrite('chip_'+str(i)+'.png', chip)
 
     draw = img.copy()
     for b in total_boxes:
@@ -41,8 +41,8 @@ if results is not None:
             cv2.circle(draw, (p[i], p[i + 5]), 1, (0, 0, 255), 2)
 
     cv2.imwrite('test2_rlt.png', draw)
-    #cv2.imshow("detection result", draw)
-    #cv2.waitKey(0)
+#    cv2.imshow("detection result", draw)
+#    cv2.waitKey(0)
 
 # --------------
 # test on camera

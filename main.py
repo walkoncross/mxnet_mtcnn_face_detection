@@ -10,11 +10,12 @@ import os.path as osp
 list_fn = './list_img.txt'
 save_dir = './test_save_dir'
 
-if not osp.exist(save_dir):
+if not osp.exists(save_dir):
 	os.makedirs(save_dir)
 
 t1 = time.clock()
 
+#create a detector
 detector = MtcnnDetector(model_folder='model', ctx=mx.gpu(0), num_worker = 4 , accurate_landmark = False)
 
 t2 = time.clock()
@@ -34,9 +35,12 @@ else:
 img_cnt = 0
 time_ttl = 0.0
 
+#process image file list
 for fn in file_list:
+	print('\n===> Processing image: ' + fn)
 	img = cv2.imread(fn)
 	if img is None:
+		print('---> Failed to load image, skip to next one')
 		continue
 
 	t1 = time.clock()
@@ -44,7 +48,7 @@ for fn in file_list:
 	# run detector
 	results = detector.detect_face(img)
 	t2 = time.clock()
-	print("detect_face() cost %f seconds" % (t2-t1) )
+	print("---> detect_face() cost %f seconds" % (t2-t1) )
 
 	img_cnt += 1
 	time_ttl += t2-t1
@@ -67,12 +71,14 @@ for fn in file_list:
 		for p in points:
 			for i in range(5):
 				cv2.circle(draw, (p[i], p[i + 5]), 1, (0, 0, 255), 2)
-
-		cv2.imwrite('test2_rlt.png', draw)
+				
+		base_name = osp.base_name(fn)
+		save_name = osp.join(save_dir, base_name)
+		cv2.imwrite(save_name, draw)
 	#    cv2.imshow("detection result", draw)
 	#    cv2.waitKey(0)
 
-	print("Processing %d images cost %f seconds, avg time: %f seconds/image" % (img_cnt, time_ttl, time_ttl/img_cnt) )
+	print("\n===> Processing %d images cost %f seconds, avg time: %f seconds/image" % (img_cnt, time_ttl, time_ttl/img_cnt) )
 
 
 # --------------

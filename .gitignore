@@ -1,3 +1,4 @@
 *.pyc
 caffe_converter
 .idea
+test_save_dir/*

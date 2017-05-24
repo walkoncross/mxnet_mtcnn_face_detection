@@ -363,6 +363,7 @@ class MtcnnDetector(object):
         print("Third stage cost %f seconds, using %d processes, processed %d boxes" % ((t2-t1), 1, num_box) )
 
         if not self.accurate_landmark:
+            print('Skip extended stage, because detector.accurate_landmark=False')
             return total_boxes, points
 
         #############################################
@@ -405,7 +406,7 @@ class MtcnnDetector(object):
         points = points.astype(np.int32)
 
         t2 = time.clock()
-        print("Third stage cost %f seconds, using %d processes, processed %d boxes" % ((t2-t1), 1, num_box) )
+        print("Extended stage cost %f seconds, using %d processes, processed %d boxes" % ((t2-t1), 1, num_box) )
 
         return total_boxes, points
 

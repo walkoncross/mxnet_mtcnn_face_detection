@@ -16,7 +16,7 @@ if not osp.exists(save_dir):
 t1 = time.clock()
 
 #create a detector
-detector = MtcnnDetector(model_folder='model', ctx=mx.gpu(0), num_worker = 4 , accurate_landmark = False)
+detector = MtcnnDetector(model_folder='model', ctx=mx.gpu(0), num_worker = 1 , accurate_landmark = False)
 
 t2 = time.clock()
 print("\n===> Init detector cost %f seconds" % (t2-t1) )

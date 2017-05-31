@@ -9,6 +9,7 @@ import sys
 
 import os.path as osp
 
+CV2_SHOWIMAGE = False
 
 def print_usage():
     print(
@@ -89,14 +90,15 @@ def demo(list_fn, save_dir):
             save_name = osp.join(save_dir, base_name)
             cv2.imwrite(save_name, draw)
 
+        if CV2_SHOWIMAGE:
+            cv2.imshow("detection result", draw)
+            key = cv2.waitKey(0)
+            #print key
+            if key==27:
+                break
 
-        cv2.imshow("detection result", draw)
-        key = cv2.waitKey(0)
-        #print key
-        if key==27:
-            break
-
-    cv2.destroyAllWindows()
+    if CV2_SHOWIMAGE:
+        cv2.destroyAllWindows()
 
 # --------------
 # test on camera
@@ -131,7 +133,7 @@ while True:
 if __name__=='__main__':
     print_usage()
 
-    list_fn = './list_img_720Px100.txt'
+    list_fn = './list_img.txt'
     save_dir = './test_save_dir'
 
     if len(sys.argv)>1:

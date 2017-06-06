@@ -4,6 +4,8 @@ import math
 import cv2
 import numpy as np
 
+import time
+
 
 def nms(boxes, overlap_threshold, mode='Union'):
     """
@@ -149,18 +151,37 @@ def detect_first_stage(img, net, scale, threshold):
     hs = int(math.ceil(height * scale))
     ws = int(math.ceil(width * scale))
     
+    t1 = time.clock()
     im_data = cv2.resize(img, (ws,hs))
-    
+    t2 = time.clock()
+    print("In detect_first_stage: cv2.resize() cost %f seconds" % (t2-t1))
+
+    t1 = time.clock()
     # adjust for the network input
     input_buf = adjust_input(im_data)
+    t2 = time.clock()
+    print("In detect_first_stage: adjust_input() cost %f seconds" % (t2-t1))
+
+    t1 = time.clock()
     output = net.predict(input_buf)
+    t2 = time.clock()
+    print("In detect_first_stage: net.predict() cost %f seconds" % (t2-t1))
+    
+    t1 = time.clock()
+
     boxes = generate_bbox(output[1][0,1,:,:], output[0], scale, threshold)
+    t2 = time.clock()
+    print("In detect_first_stage: generate_bbox() cost %f seconds" % (t2-t1))
 
     if boxes.size == 0:
         return None
 
+    t1 = time.clock()
     # nms
     pick = nms(boxes[:,0:5], 0.5, mode='Union')
+    t2 = time.clock()
+    print("In detect_first_stage: nms() cost %f seconds" % (t2-t1))
+
     boxes = boxes[pick]
     return boxes
 

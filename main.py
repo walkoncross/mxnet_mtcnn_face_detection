@@ -38,6 +38,9 @@ time_ttl = 0.0
 
 # process image file list
 for fn in file_list:
+    if fn.startswith('#'):
+        continue
+
     print('\n===> Processing image: ' + fn)
     img = cv2.imread(fn)
     if img is None:
